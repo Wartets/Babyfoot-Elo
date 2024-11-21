@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Babyfoot Elo Tracker</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <div id="auth-section">
+      <h1>Babyfoot Elo Tracker</h1>
+      <div id="login-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="login-btn">Login</button>
+        <button id="signup-btn">Sign Up</button>
+      </div>
+    </div>
+
+    <div id="main-section" style="display:none;">
+      <h2>Welcome, <span id="user-name"></span>!</h2>
+      <p>Your current Elo: <strong id="user-elo">0</strong></p>
+      <form id="match-form">
+        <h3>Record a Match</h3>
+        <label for="opponent">Opponent:</label>
+        <select id="opponent" required></select>
+        <label for="points">Points (won/lost):</label>
+        <input type="number" id="points" required>
+        <button type="submit">Submit Match</button>
+      </form>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
