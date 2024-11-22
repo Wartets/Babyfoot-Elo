@@ -66,14 +66,12 @@ Ce projet implémente un système de classement Elo standard pour calculer et aj
 
 #### Probabilité attendue pour chaque joueur :
 Pour le joueur principal (Player 1) :
-\[
-E_1 = \frac{1}{1 + 10^{\frac{R_2 - R_1}{400}}}
-\]
+
+$$ E_1 = \frac{1}{1 + 10^{\frac{R_2 - R_1}{400}}} $$
 
 Pour l'adversaire (Player 2) :
-\[
-E_2 = \frac{1}{1 + 10^{\frac{R_1 - R_2}{400}}}
-\]
+
+$$ E_2 = \frac{1}{1 + 10^{\frac{R_1 - R_2}{400}}} $$
 
 - \(R_1\) : Score Elo actuel du joueur 1.
 - \(R_2\) : Score Elo actuel du joueur 2.
