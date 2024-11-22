@@ -36,6 +36,60 @@ header h1 {
     text-align: center;
 }
 
+header h1 span {
+    display: inline-block;
+    transition: transform 0.1s ease-in-out, opacity 0.1s ease-in-out;
+}
+
+header h1:hover span {
+    animation: jiggle 0.5s ease-in-out infinite, colorChange 2s linear infinite;
+}
+
+@keyframes jiggle {
+    0% {
+        transform: translateX(0) rotate(0);
+    }
+    25% {
+        transform: translateX(-3px) translateY(-3px) rotate(-3deg);
+    }
+    50% {
+        transform: translateX(3px) translateY(-3px) rotate(3deg);
+    }
+    75% {
+        transform: translateX(2px) translateY(-2px) rotate(-2deg);
+    }
+    100% {
+        transform: translateX(0) rotate(0);
+    }
+}
+
+@keyframes colorChange {
+    0% {
+        color: #e7eaff;
+    }
+    14% {
+        color: #a1a1b5;
+    }
+    28% {
+        color: red;
+    }
+    42% {
+        color: orange;
+    }
+    57% {
+        color: yellow;
+    }
+    71% {
+        color: green;
+    }
+    85% {
+        color: violet;
+    }
+    100% {
+        color: red;
+    }
+}
+
 /* Elo */
 #nbElo {
     font-size: 15px;
@@ -104,7 +158,7 @@ form label {
 
 /* Leaderboard Table */
 table {
-    width: 100%;
+    width: 95%;
     margin-top: 20px;
     border-collapse: collapse;
 }
@@ -135,6 +189,14 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px; /* Add spacing between footer elements */
+    gap: 20px;
     margin-top: 30px;
+}
+
+.log-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

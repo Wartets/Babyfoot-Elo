@@ -13,15 +13,24 @@
         </header>
 
         <section class="auth-form">
-            <form method="POST">
-                <label for="username">Choisissez un nom d'utilisateur :</label>
-                <input type="text" name="username" required>
-                <label for="password">Choisissez un mot de passe :</label>
-                <input type="password" name="password" required>
-                <button type="submit" class="btn primary">Créer un compte</button>
-            </form>
+			<form method="POST">
+				<label for="username">Choisissez un nom d'utilisateur :</label>
+				<input type="text" name="username" id="username" pattern="^[a-zA-Z0-9_-]+$" title="Caractères autorisés : lettres, chiffres, tirets et underscores." required>
+				
+				<label for="password">Choisissez un mot de passe :</label>
+				<input type="password" name="password" id="password" pattern="^[a-zA-Z0-9!@#$%^&*()_+-=]+$" title="Caractères spéciaux interdits : espaces, crochets, accolades, etc." required>
+				
+				<label for="confirm_password">Confirmez votre mot de passe :</label>
+				<input type="password" name="confirm_password" id="confirm_password" required>
+				
+				<button type="submit" class="btn primary">Créer un compte</button>
+			</form>
+
 			<p><a href="{{ url_for('login') }}">Se connecter</a></p>
         </section>
     </div>
+    <script src="static\script.js"></script>
 </body>
 </html>
+
+
