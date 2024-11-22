@@ -1,9 +1,9 @@
 # Babyfoot-Elo
 
  
-babyfoot_elo/
-│
-├── app.py             # Le fichier principal avec la logique de l'application \
+babyfoot_elo/ \
+│ \
+├── app.py            # Le fichier principal avec la logique de l'application \
 ├── templates/         # Dossier pour les fichiers HTML \
 │   ├── index.html     # Page d'accueil \
 │   ├── login.html     # Page de connexion  \
