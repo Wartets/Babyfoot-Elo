@@ -1,0 +1,140 @@
+/* Global Styles */
+* {
+    margin: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+	background: rgb(100,100,100);
+	background: -moz-linear-gradient(90deg, rgba(100,100,100,1) 0%, rgba(0,0,0,1) 50%, rgba(100,100,100,1) 100%);
+	background: -webkit-linear-gradient(90deg, rgba(100,100,100,1) 0%, rgba(0,0,0,1) 50%, rgba(100,100,100,1) 100%);
+	background: linear-gradient(90deg, rgba(100,100,100,1) 0%, rgba(0,0,0,1) 50%, rgba(100,100,100,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#646464",endColorstr="#646464",GradientType=1); 
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    width: 90%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+header h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Elo */
+#nbElo {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+/* Button styles */
+button, .btn {
+    margin: auto;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+button:hover, .btn:hover {
+    background-color: #0056b3;
+}
+
+.btn.danger {
+    background-color: #e74c3c;
+    padding: 8px 16px;
+	opacity: 0.8;
+}
+
+.btn.danger:hover {
+    background-color: #c0392b;
+	opacity: 1;
+}
+
+.btn.secondary {
+    background-color: #95a5a6;
+}
+
+.btn.secondary:hover {
+    background-color: #7f8c8d;
+}
+
+/* Form Styles */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+form input, form select {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+form input {
+    width: 90%;
+}
+
+form label {
+    font-size: 14px;
+}
+
+/* Leaderboard Table */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f8f9fa;
+}
+
+/* Links */
+.link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* Add spacing between footer elements */
+    margin-top: 30px;
+}

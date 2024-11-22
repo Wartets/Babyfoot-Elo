@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babyfoot ELO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ user.username }}</h1>
+        </header>
+
+        <section class="elo">
+            <p id="nbElo">Votre Elo actuel : {{ user.elo }}</p>
+            <form action="{{ url_for('play_match') }}" method="POST" class="match-form">
+                <label for="player2_username">Pseudo de l'adversaire :</label>
+                <input id="player2_username" name="player2_username" required>
+                <label for="points">Nombre de points d'écarts :</label>
+                <input type="number" id="points" name="points" required>
+                <label for="winner">Qui a gagné ?</label>
+                <select name="winner" id="winner">
+                    <option value="1">Moi</option>
+                    <option value="2">Adversaire</option>
+                </select>
+                <button type="submit" class="btn primary">Enregistrer le match</button>
+            </form>
+        </section>
+
+        <section class="leaderboard">
+            <h2>Classement des joueurs :</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Pseudo</th>
+                        <th>Elo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in leaderboard %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ player.username }}</td>
+                            <td>{{ player.elo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        <footer>
+			<a href="{{ url_for('logout') }}" class="btn secondary">Se déconnecter</a>
+			
+			<form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ?')">
+				<button type="submit" class="btn danger">Supprimer mon compte</button>
+			</form>
+        </footer>
+    </div>
+</body>
+</html>

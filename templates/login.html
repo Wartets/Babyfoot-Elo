@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Connexion</h1>
+        </header>
+
+        <section class="auth-form">
+            <form method="POST">
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" name="username" required>
+                <label for="password">Mot de passe:</label>
+                <input type="password" name="password" required>
+                <button type="submit" class="btn primary">Se connecter</button>
+            </form>
+            <p><a href="{{ url_for('register') }}" class="link">Créer un compte</a></p>
+        </section>
+    </div>
+</body>
+</html>
