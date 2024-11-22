@@ -67,31 +67,29 @@ Ce projet implémente un système de classement Elo standard pour calculer et aj
 #### Probabilité attendue pour chaque joueur :
 Pour le joueur principal (Player 1) :
 
-$$ E_1 = \frac{1}{1 + 10^{\frac{R_2 - R_1}{400}}} $$
+E1 = 1 / (1 + 10^((R2 - R1) / 400))
 
 Pour l'adversaire (Player 2) :
 
-$$ E_2 = \frac{1}{1 + 10^{\frac{R_1 - R_2}{400}}} $$
+E2 = 1 / (1 + 10^((R1 - R2) / 400))
 
-- \(R_1\) : Score Elo actuel du joueur 1.
-- \(R_2\) : Score Elo actuel du joueur 2.
-- \(E_1\) et \(E_2\) : Scores attendus pour chaque joueur (entre 0 et 1).
+- **R1** : Score Elo actuel du joueur 1.
+- **R2** : Score Elo actuel du joueur 2.
+- **E1** et **E2** : Scores attendus pour chaque joueur (entre 0 et 1).
 
 #### Mise à jour des scores Elo :
 Pour le joueur principal (Player 1) :
-\[
-R_1' = R_1 + K \cdot (S_1 - E_1)
-\]
+
+R1’ = R1 + K * (S1 - E1)
 
 Pour l'adversaire (Player 2) :
-\[
-R_2' = R_2 + K \cdot (S_2 - E_2)
-\]
 
-- \(K\) : Constante de développement définissant l'impact maximal d'un match sur le score Elo. Dans ce projet, \(K = 32\).
-- \(S_1\) et \(S_2\) : Résultats du match :
-  - \(S_1 = 1\) si Player 1 gagne, \(0.5\) pour un match nul, \(0\) pour une défaite.
-  - \(S_2 = 1 - S_1\).
+R2’ = R2 + K * (S2 - E2)
+
+- **K** : Constante de développement définissant l'impact maximal d'un match sur le score Elo. Dans ce projet, **K = 32**.
+- **S1** et **S2** : Résultats du match :
+  - **S1 = 1** si Player 1 gagne, **0.5** pour un match nul, **0** pour une défaite.
+  - **S2 = 1 - S1**.
 
 ### Implémentation
 
