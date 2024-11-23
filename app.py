@@ -24,12 +24,39 @@ class Match(db.Model):
     points = db.Column(db.Integer, nullable=False)
 
 # Fonction pour calculer le classement Elo
-def elo_rating(player_elo, opponent_elo, result, k=32):
-    expected_score_player = 1 / (1 + math.pow(10, (opponent_elo - player_elo) / 400))
-    expected_score_opponent = 1 / (1 + math.pow(10, (player_elo - opponent_elo) / 400))
-    new_player_elo = player_elo + k * (result - expected_score_player)
-    new_opponent_elo = opponent_elo + k * (1 - result - expected_score_opponent)
-    return new_player_elo, new_opponent_elo
+def elo_rating(player_elo, opponent_elo, result, point_gap, k=32, gap=20):
+    """
+    Calcule le nouveau score Elo d'un joueur en fonction du résultat du match et de l'écart de points.
+    :param player_elo: Elo actuel du joueur.
+    :param opponent_elo: Elo actuel de l'adversaire.
+    :param result: Résultat du match (1 pour victoire, 0 pour défaite, 0.5 pour match nul).
+    :param point_gap: Écart de score.
+    :param k: Coefficient de base pour l'ajustement de l'Elo.
+    :param gap: Facteur pour normaliser l'écart de score.
+    :return: Nouveau score Elo du joueur.
+    """
+    scale_factor = min(2, 1 + (point_gap / gap))  # Pondération en fonction de l'écart de score
+    adjusted_k = k * scale_factor
+
+    expected_score = 1 / (1 + math.pow(10, (opponent_elo - player_elo) / 400))
+    new_elo = player_elo + adjusted_k * (result - expected_score)
+    return max(0, round(new_elo))
+
+def calculate_team_elo(team, opponents):
+    """
+    Calcule le score attendu pour une équipe contre une autre.
+    :param team: Liste des joueurs de l'équipe (objets User).
+    :param opponents: Liste des joueurs de l'équipe adverse (objets User).
+    :return: Score attendu pour l'équipe.
+    """
+    total_expected = 0
+    for player in team:
+        expected_scores = [
+            1 / (1 + math.pow(10, (opponent.elo - player.elo) / 400)) for opponent in opponents
+        ]
+        total_expected += sum(expected_scores) / len(opponents)
+    print("tot", total_expected / len(team))
+    return total_expected / len(team)
 
 # Routes de l'application
 @app.route('/')
@@ -119,52 +146,104 @@ def play_match():
     # Récupérer l'utilisateur connecté
     player1 = User.query.get(session['user_id'])
     
-    # Récupérer le pseudo de l'adversaire
-    player2_username = request.form['player2_username'].strip()
+    # Récupération des informations depuis le formulaire
+    match_type = request.form['match_type']
     points = int(request.form['points'])
+    print('points:', points)
+    winner = int(request.form['winner'])  # 1 pour player1 ou son équipe, 2 pour adversaire
+    print('winner:', winner, '- 1 pour player1 ou son équipe, 2 pour adversaire')
 
-    # Vérifier que l'adversaire existe et que ce n'est pas le joueur lui-même
-    if player1.username == player2_username:
-        return "Vous ne pouvez pas jouer contre vous-même.", 400
+    # Initialisation des équipes
+    team1 = [player1]
+    team2 = []
 
-    player2 = User.query.filter_by(username=player2_username).first()
-    if not player2:
-        return "L'adversaire n'a pas été trouvé", 404
+    if match_type == "1v1":
+        player2_username = request.form['player2_username'].strip()
+        player2 = User.query.filter_by(username=player2_username).first()
+        if not player2:
+            return "Adversaire introuvable.", 404
+        if player2.username == player1.username:
+            return "Vous ne pouvez pas jouer contre vous-même.", 400
+        team2 = [player2]
+        print('team1', team1)
+        print('team2', team2)
 
-    # Vérifier que les points sont raisonnables (pas négatifs et <= 10)
-    if points <= 0 or points > 100:
-        return "La différence de score doit être comprise entre 1 et 100.", 400
+    elif match_type == "1v2":
+        player2_username = request.form['player2_username'].strip()
+        player2_teammate_username = request.form['player2_teammate'].strip()
+        player2 = User.query.filter_by(username=player2_username).first()
+        player2_teammate = User.query.filter_by(username=player2_teammate_username).first()
+        if not player2 or not player2_teammate:
+            return "Adversaire ou coéquipier introuvable.", 404
+        if player2.username == player1.username or player2_teammate.username == player1.username:
+            return "Vous ne pouvez pas jouer contre vous-même.", 400
+        team2 = [player2, player2_teammate]
+        print('team1', team1)
+        print('team2', team2)
 
-    # Déterminer qui a gagné
-    winner = request.form['winner']
-    
-    if winner == '1':
-        winner_id = player1.id
-        result = 1  # Player 1 wins
-    elif winner == '2':
-        winner_id = player2.id
-        result = 0  # Player 2 wins
-    else:
-        return "Valeur invalide pour le gagnant.", 400
+    elif match_type == "2v1":
+        teammate_username = request.form['teammate_username'].strip()
+        player2_username = request.form['player2_username'].strip()
+        teammate = User.query.filter_by(username=teammate_username).first()
+        player2 = User.query.filter_by(username=player2_username).first()
+        if not teammate or not player2:
+            return "Coéquipier ou adversaire introuvable.", 404
+        if teammate.username == player1.username or player2.username == player1.username:
+            return "Vous ne pouvez pas jouer contre vous-même.", 400
+        team1 = [player1, teammate]
+        team2 = [player2]
+        print('team1', team1)
+        print('team2', team2)
 
-    # Calcul Elo basé sur la différence de points
-    k = 32  # Coefficient d'ajustement
-    performance = (points - 1) / 9  # Normalisation du score (0.0 à 1.0)
-    if result == 0:  # Si l'adversaire a gagné
-        performance = 1 - performance
+    elif match_type == "2v2":
+        teammate_username = request.form['teammate_username'].strip()
+        player2_username = request.form['player2_username'].strip()
+        player2_teammate_username = request.form['player2_teammate'].strip()
+        teammate = User.query.filter_by(username=teammate_username).first()
+        player2 = User.query.filter_by(username=player2_username).first()
+        player2_teammate = User.query.filter_by(username=player2_teammate_username).first()
+        if not teammate or not player2 or not player2_teammate:
+            return "Joueurs introuvables.", 404
+        if teammate.username == player1.username or player2.username == player1.username or player2_teammate.username == player1.username:
+            return "Vous ne pouvez pas jouer contre vous-même.", 400
+        team1 = [player1, teammate]
+        team2 = [player2, player2_teammate]
+        print('team1', team1)
+        print('team2', team2)
 
-    new_player1_elo, new_player2_elo = elo_rating(player1.elo, player2.elo, performance, k)
+    # Calcul des scores attendus pour les équipes
+    expected_team1 = calculate_team_elo(team1, team2)
+    expected_team2 = calculate_team_elo(team2, team1)
 
-    # Mise à jour des Elo dans la base de données
-    player1.elo = round(new_player1_elo)
-    player2.elo = round(new_player2_elo)
+    # Application des scores aux joueurs
+    for player in team1:
+        result = 1 if winner == 1 else 0
+        # Utilise la moyenne du Elo des adversaires
+        opponent_elo = sum([opponent.elo for opponent in team2]) / len(team2)
+        player.elo = elo_rating(player.elo, opponent_elo, result, points)
+        print(f"Joueur {player.username} (team1) - Nouveau Elo: {player.elo}")
+
+    for player in team2:
+        result = 1 if winner == 2 else 0
+        # Utilise la moyenne du Elo des adversaires
+        opponent_elo = sum([opponent.elo for opponent in team1]) / len(team1)
+        player.elo = elo_rating(player.elo, opponent_elo, result, points)
+        print(f"Joueur {player.username} (team2) - Nouveau Elo: {player.elo}")
+
 
     # Enregistrer le match
-    match = Match(player1_id=player1.id, player2_id=player2.id, winner_id=winner_id, points=points)
+    print(player1.id, team2[0].id if team2 else None, team1[0].id if winner == 1 else team2[0].id, points)
+    match = Match(
+        player1_id=player1.id,
+        player2_id=team2[0].id if team2 else None,
+        winner_id=team1[0].id if winner == 1 else team2[0].id,
+        points=points
+    )
     db.session.add(match)
     db.session.commit()
 
     return redirect(url_for('index'))
+
 
 @app.route('/logout')
 def logout():
