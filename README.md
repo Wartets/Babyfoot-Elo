@@ -4,13 +4,13 @@ Ce projet est une application web pour gérer les classements ELO des joueurs de
 
 ## Prérequis
 
-- Python 3.x installé
+- Python 3.x minimun installé
 - SQLite (inclus avec Python)
 - Navigateur web
 
 ## Installation et configuration
 
-1. **Clonez ce dépôt**
+1. **Clonez ce dépôt** (ou télechargez la dernière release)
    ```bash
    git clone https://github.com/wartets/babyfoot-elo.git
    cd babyfoot-elo
@@ -22,7 +22,7 @@ Ce projet est une application web pour gérer les classements ELO des joueurs de
    pip install flask flask-sqlalchemy werkzeug
    ```
 
-3. **Initialisez la base de données**
+3. **Initialisez la base de données** (si elle n'existe déjà pas)
    Lancez un shell Python dans le répertoire du projet et exécutez les commandes suivantes :
    ```bash
    python
@@ -35,21 +35,22 @@ Ce projet est une application web pour gérer les classements ELO des joueurs de
    ```
 
 4. **Démarrez le serveur**
-   Lancez l'application Flask :
+   Lancez l'application Flask dans le répoertoire du projet :
    ```bash
+   cd {répertoire du projet}
    python app.py
    ```
 
 5. **Accédez à l'application**
-   Ouvrez un navigateur et accédez à [http://127.0.0.1:5000](http://127.0.0.1:5000).
+   Ouvrez un navigateur et accédez à l'adresse locale : [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 ## Utilisation
 
 - **Inscription** : Créez un compte via la page d'inscription.
 - **Connexion** : Connectez-vous avec vos identifiants.
-- **Enregistrer un match** : Ajoutez un match avec les informations sur l'adversaire et les points.
+- **Enregistrer un match** : Ajoutez un match en renseignant les participants, le type de partie (1v1, 1v2, 2v1, ou 2v2) et l'écart de points final.
 - **Classement** : Consultez le classement mis à jour automatiquement après chaque match.
-- **Suppression de compte** : Supprimez votre compte (attention, irréversible !).
+- **Suppression de compte** : Supprimez votre compte (attention, cette action est irréversible !).
 
 ## Structure du projet
 
@@ -58,57 +59,49 @@ Ce projet est une application web pour gérer les classements ELO des joueurs de
 - `static/` : Contient les fichiers CSS et autres ressources statiques.
 - `db.sqlite` : Fichier de base de données SQLite généré automatiquement.
 
-## Détails sur la formule Elo utilisée
+## Détails sur le système Elo
 
-Ce projet implémente un système de classement Elo standard pour calculer et ajuster les scores des joueurs après chaque match.
+Ce projet implémente un système de classement Elo ajusté pour le babyfoot, prenant en charge différents formats de parties (1v1, 1v2, 2v1, 2v2). Les scores des joueurs sont mis à jour après chaque match en fonction des résultats et des performances attendues.
 
-### Formule utilisée
+### Calcul des probabilités attendues
 
-#### Probabilité attendue pour chaque joueur :
-Pour le joueur principal (Player 1) :
+Pour chaque joueur, la probabilité de victoire est calculée comme suit :
 
-E1 = 1 / (1 + 10^((R2 - R1) / 400))
-
-Pour l'adversaire (Player 2) :
-
-E2 = 1 / (1 + 10^((R1 - R2) / 400))
-
-- **R1** : Score Elo actuel du joueur 1.
-- **R2** : Score Elo actuel du joueur 2.
-- **E1** et **E2** : Scores attendus pour chaque joueur (entre 0 et 1).
-
-#### Mise à jour des scores Elo :
-Pour le joueur principal (Player 1) :
-
-R1’ = R1 + K * (S1 - E1)
-
-Pour l'adversaire (Player 2) :
-
-R2’ = R2 + K * (S2 - E2)
-
-- **K** : Constante de développement définissant l'impact maximal d'un match sur le score Elo. Dans ce projet, **K = 32**.
-- **S1** et **S2** : Résultats du match :
-  - **S1 = 1** si Player 1 gagne, **0.5** pour un match nul, **0** pour une défaite.
-  - **S2 = 1 - S1**.
-
-### Implémentation
-
-La formule est implémentée dans le fichier `app.py` comme suit :
-
-```python
-def elo_rating(player_elo, opponent_elo, result, k=32):
-    expected_score_player = 1 / (1 + math.pow(10, (opponent_elo - player_elo) / 400))
-    expected_score_opponent = 1 / (1 + math.pow(10, (player_elo - opponent_elo) / 400))
-    new_player_elo = player_elo + k * (result - expected_score_player)
-    new_opponent_elo = opponent_elo + k * (1 - result - expected_score_opponent)
-    return new_player_elo, new_opponent_elo
+Pour un joueur ou une équipe A contre un joueur ou une équipe B :
 ```
+E_A = 1 / (1 + 10^((R_B - R_A) / 400))
+```
+- **R_A** : Score Elo actuel de l'équipe/joueur A.
+- **R_B** : Score Elo actuel de l'équipe/joueur B.
+- **E_A** : Probabilité attendue pour l'équipe/joueur A (valeur entre 0 et 1).
+
+### Mise à jour des scores Elo
+
+Après le match, les scores Elo sont mis à jour en fonction de l'écart de points final et du résultat :
+```
+R_A' = R_A + K * (S_A - E_A) * scale_factor
+```
+- **S_A** : Résultat du match pour l'équipe/joueur A (1 pour victoire, 0.5 pour égalité, 0 pour défaite).
+- **scale_factor** : Facteur de pondération basé sur l'écart de points final.
+- **K** : Constante d'ajustement (par défaut, K = 32).
+- **R_A'** : Nouveau score Elo de l'équipe/joueur A.
+
+Le `scale_factor` est calculé en fonction de l'écart de score :
+```
+scale_factor = min(2, 1 + (point_gap / gap))
+```
+où **point_gap** est l'écart de score final et **gap** est une constante définissant la sensibilité à cet écart.
+
+### Gestion des parties en équipe
+
+Pour les parties 1v2 ou 2v2, les probabilités attendues et les mises à jour de scores sont calculées pour chaque joueur individuellement en tenant compte de l'Elo moyen des adversaires.
+
 ### Points importants :
 
-	1.	Constante (K = 32) : Détermine l’amplitude des variations de score après un match. Une valeur plus élevée augmente l’impact d’un match.
-	2.	Basé sur les probabilités attendues : Le système pondère les gains en fonction des écarts Elo entre les joueurs. Une victoire contre un adversaire plus fort rapporte plus de points.
-	3.	Modèle symétrique : Les gains d’un joueur correspondent exactement aux pertes de l’autre.
-
-> Ce système est couramment utilisé pour évaluer les performances dans des environnements compétitifs comme les échecs, les jeux vidéo, ou ici, le babyfoot.
+1.	Constante (K = 32) : Détermine l’amplitude des variations de score après un match. Une valeur plus élevée augmente l’impact d’un match.
+2. **Flexibilité des formats** : Les formules s'appliquent aux parties en 1v1, 1v2, 2v1 et 2v2.
+3. **Impact de l'écart de score** : Les gains/pertes de points sont amplifiés pour les victoires écrasantes.
+4.	Basé sur les probabilités attendues : Le système pondère les gains en fonction des écarts Elo entre les joueurs. Une victoire contre un adversaire plus fort rapporte plus de points.
+5. **Modèle symétrique** : Les gains d'une équipe ou d'un joueur correspondent exactement aux pertes de l'autre.
 
 ---
