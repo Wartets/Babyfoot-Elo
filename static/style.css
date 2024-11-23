@@ -191,7 +191,8 @@ table {
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 6px;
-    overflow: hidden
+    overflow: hidden;
+    background-color: rgba(248, 249, 250, 0.1);
 }
 
 table th, table td {
@@ -338,4 +339,28 @@ hr {
 	overflow: visible;
 	text-align: center;
 	height: 5px;
+}
+
+/* Bouton Retour en Haut */
+#back-to-top {
+    position: fixed;
+    bottom: 140px;
+    right: 30px;
+    display: none;
+    background-color: rgba(140, 52, 60, 0.7);
+    color: white;
+    border: none;
+	padding: 8px 15px;
+	padding-bottom: 9px;
+    font-size: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+}
+
+#back-to-top:hover {
+    background-color: rgba(140, 80, 70, 1);
+    transform: scale(1.1);
 }

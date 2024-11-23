@@ -81,3 +81,18 @@ function updateMatchForm() {
             <input id="player2_teammate" name="player2_teammate" required>`;
     }
 }
+
+// Affiche le bouton lorsque l'utilisateur défile vers le bas
+window.onscroll = function() {
+    const backToTopButton = document.getElementById("back-to-top");
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        backToTopButton.style.display = "block";
+    } else {
+        backToTopButton.style.display = "none";
+    }
+};
+
+// Remonte en haut de la page quand le bouton est cliqué
+document.getElementById("back-to-top").onclick = function() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+};
